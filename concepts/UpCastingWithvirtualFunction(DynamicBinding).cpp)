@@ -1,0 +1,59 @@
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+class clsPerson
+{
+
+
+public:
+
+virtual void Print()
+{
+cout<<"Hi Iam Person\n" ;   
+}
+
+};
+
+class clsEmployee : public clsPerson
+{
+
+public:
+    
+void Print()
+{
+cout<<"Hi Iam Employee\n" ;   
+}
+
+
+};
+
+class clsStudent : public clsPerson
+{
+
+public:
+    
+void Print()
+{
+cout<<"Hi Iam Student\n" ;   
+}
+
+
+};
+
+int main()
+{
+
+clsEmployee Employee1;
+clsStudent Student1;
+
+
+clsPerson * Person1= &Employee1;
+clsPerson * Person2= &Student1;
+
+Person1->Print();
+Person2->Print();
+
+    
+}
