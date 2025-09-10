@@ -1,178 +1,514 @@
-#include <iostream>   // Include iostream for input/output operations.
-#include <cstdlib>    // Include cstdlib for system functions like clearing the screen.
-#include <ctime>      // Include ctime for random number seeding.
-using namespace std;  // Use the standard namespace to avoid prefixing std:: before standard functions.
+#pragma once
 
-// Enumeration: enGameChoice
-// Purpose: Defines the choices available in the game.
-enum enGameChoice { Stone = 1, Paper = 2, Scissors = 3 };
+#include <iostream>
+#include <vector>
 
-// Enumeration: enWinner
-// Purpose: Defines possible winners for a round or game.
-enum enWinner { Player1 = 1, Computer = 2, Draw = 3 };
+using namespace std;
 
-// Structure: stRoundInfo
-// Purpose: Stores details of a single round of the game.
-struct stRoundInfo
+class clsString
 {
-    short RoundNumber = 0;          // Round number.
-    enGameChoice Player1Choice;     // Player's choice.
-    enGameChoice ComputerChoice;    // Computer's choice.
-    enWinner Winner;                // Stores the winner of the round.
-    string WinnerName;               // Stores the winner's name.
-};
 
-// Structure: stGameResults
-// Purpose: Stores overall game results after all rounds are played.
-struct stGameResults
-{
-    short GameRounds = 0;        // Number of rounds played.
-    short Player1WinTimes = 0;   // Count of Player1's wins.
-    short ComputerWinTimes = 0;  // Count of Computer's wins.
-    short DrawTimes = 0;         // Number of rounds that ended in a draw.
-    enWinner GameWinner;         // Stores the overall game winner.
-    string WinnerName = "";      // Name of the game winner.
-};
+private:
+    string _Value;
 
-// Function: RandomNumber
-// Purpose: Generates a random number within the given range [From, To].
-// Parameters:
-//   - From: Lower bound of the random range.
-//   - To: Upper bound of the random range.
-// Returns: A random integer between From and To.
-int RandomNumber(int From, int To)
-{
-    return rand() % (To - From + 1) + From;
-}
+public:
 
-// Function: GetComputerChoice
-// Purpose: Randomly selects the computer's choice.
-// Returns: An enGameChoice value representing the computer's move.
-enGameChoice GetComputerChoice()
-{
-    return (enGameChoice)RandomNumber(1, 3);
-}
-
-// Function: WhoWonTheRound
-// Purpose: Determines the winner of a round based on player and computer choices.
-enWinner WhoWonTheRound(stRoundInfo RoundInfo)
-{
-    // If both choices are the same, it's a draw.
-    if (RoundInfo.Player1Choice == RoundInfo.ComputerChoice)
-        return enWinner::Draw;
-
-    // Determine the winner based on game rules.
-    switch (RoundInfo.Player1Choice)
+    clsString()
     {
-    case enGameChoice::Stone:
-        return (RoundInfo.ComputerChoice == enGameChoice::Paper) ? enWinner::Computer : enWinner::Player1;
-    case enGameChoice::Paper:
-        return (RoundInfo.ComputerChoice == enGameChoice::Scissors) ? enWinner::Computer : enWinner::Player1;
-    case enGameChoice::Scissors:
-        return (RoundInfo.ComputerChoice == enGameChoice::Stone) ? enWinner::Computer : enWinner::Player1;
-    }
-}
-
-// Function: WhoWonTheGame
-// Purpose: Determines the final game winner based on win counts.
-enWinner WhoWonTheGame(short Player1WinTimes, short ComputerWinTimes)
-{
-    if (Player1WinTimes > ComputerWinTimes) return enWinner::Player1;
-    else if (ComputerWinTimes > Player1WinTimes) return enWinner::Computer;
-    else return enWinner::Draw;
-}
-
-// Function: ChoiceName
-// Purpose: Converts an enGameChoice enum to a string representation.
-string ChoiceName(enGameChoice Choice)
-{
-    string arrGameChoices[3] = { "Stone", "Paper", "Scissors" };
-    return arrGameChoices[Choice - 1];
-}
-
-// Function: WinnerName
-// Purpose: Converts an enWinner enum to a string representation.
-string WinnerName(enWinner Winner)
-{
-    string arrWinnerName[3] = { "Player1", "Computer", "No Winner (Draw)" };
-    return arrWinnerName[Winner - 1];
-}
-
-// Function: ReadPlayer1Choice
-// Purpose: Prompts the player to input their choice.
-enGameChoice ReadPlayer1Choice()
-{
-    short Choice;
-    do
-    {
-        cout << "\nYour Choice: [1]:Stone, [2]:Paper, [3]:Scissors? ";
-        cin >> Choice;
-    } while (Choice < 1 || Choice > 3);
-    return (enGameChoice)Choice;
-}
-
-// Function: PrintRoundResults
-// Purpose: Displays the results of a single round.
-void PrintRoundResults(stRoundInfo RoundInfo)
-{
-    cout << "\n____________ Round [" << RoundInfo.RoundNumber << "] ____________\n\n";
-    cout << "Player1 Choice: " << ChoiceName(RoundInfo.Player1Choice) << endl;
-    cout << "Computer Choice: " << ChoiceName(RoundInfo.ComputerChoice) << endl;
-    cout << "Round Winner   : [" << RoundInfo.WinnerName << "]\n";
-    cout << "_________________________________________\n" << endl;
-}
-
-// Function: PlayGame
-// Purpose: Runs the game for a given number of rounds and determines the final winner.
-stGameResults PlayGame(short HowManyRounds)
-{
-    stRoundInfo RoundInfo;
-    short Player1WinTimes = 0, ComputerWinTimes = 0, DrawTimes = 0;
-
-    for (short GameRound = 1; GameRound <= HowManyRounds; GameRound++)
-    {
-        cout << "\nRound [" << GameRound << "] begins:\n";
-        RoundInfo.RoundNumber = GameRound;
-        RoundInfo.Player1Choice = ReadPlayer1Choice();
-        RoundInfo.ComputerChoice = GetComputerChoice();
-        RoundInfo.Winner = WhoWonTheRound(RoundInfo);
-        RoundInfo.WinnerName = WinnerName(RoundInfo.Winner);
-
-        if (RoundInfo.Winner == enWinner::Player1)
-            Player1WinTimes++;
-        else if (RoundInfo.Winner == enWinner::Computer)
-            ComputerWinTimes++;
-        else
-            DrawTimes++;
-
-        PrintRoundResults(RoundInfo);
+        _Value = "";
     }
 
-    return { HowManyRounds, Player1WinTimes, ComputerWinTimes, DrawTimes, WhoWonTheGame(Player1WinTimes, ComputerWinTimes), WinnerName(WhoWonTheGame(Player1WinTimes, ComputerWinTimes)) };
-}
-
-// Function: StartGame
-// Purpose: Controls the game loop, allowing players to replay the game.
-void StartGame()
-{
-    char PlayAgain = 'Y';
-
-    do
+    clsString(string Value)
     {
-        system("cls");  // Clear the screen before starting a new game.
-        stGameResults GameResults = PlayGame(3); // Play 3 rounds.
-        cout << "\nGame Over! Winner: " << GameResults.WinnerName << endl;
+        _Value = Value;
+    }
 
-        cout << "\nDo you want to play again? (Y/N): ";
-        cin >> PlayAgain;
+    void SetValue(string Value) {
+        _Value = Value;
+    }
 
-    } while (PlayAgain == 'Y' || PlayAgain == 'y');
-}
+    string GetValue() {
+        return _Value;
+    }
 
-// Main Function
-int main()
-{
-    srand((unsigned)time(NULL));  // Seed random number generator.
-    StartGame();  // Start the game.
-    return 0;  // Return 0 to indicate successful execution.
-}
+
+
+    static short Length(string S1)
+    {
+        return S1.length();
+    };
+
+    short Length()
+    {
+        return _Value.length();
+    };
+
+    static short CountWords(string S1)
+    {
+
+        string delim = " "; // delimiter  
+        short Counter = 0;
+        short pos = 0;
+        string sWord; // define a string variable  
+
+        // use find() function to get the position of the delimiters  
+        while ((pos = S1.find(delim)) != std::string::npos)
+        {
+            sWord = S1.substr(0, pos); // store the word   
+            if (sWord != "")
+            {
+                Counter++;
+            }
+
+            //erase() until positon and move to next word.
+            S1.erase(0, pos + delim.length());
+        }
+
+        if (S1 != "")
+        {
+            Counter++; // it counts the last word of the string.
+        }
+
+        return Counter;
+
+    }
+
+    short CountWords()
+    {
+        return CountWords(_Value);
+    };
+
+    static string  UpperFirstLetterOfEachWord(string S1)
+    {
+
+        bool isFirstLetter = true;
+
+        for (short i = 0; i < S1.length(); i++)
+        {
+
+            if (S1[i] != ' ' && isFirstLetter)
+            {
+                S1[i] = toupper(S1[i]);
+
+            }
+
+            isFirstLetter = (S1[i] == ' ' ? true : false);
+
+        }
+
+        return S1;
+    }
+
+    void  UpperFirstLetterOfEachWord()
+    {
+        // no need to return value , this function will directly update the object value  
+        _Value = UpperFirstLetterOfEachWord(_Value);
+    }
+
+    static string  LowerFirstLetterOfEachWord(string S1)
+    {
+
+        bool isFirstLetter = true;
+
+        for (short i = 0; i < S1.length(); i++)
+        {
+
+            if (S1[i] != ' ' && isFirstLetter)
+            {
+                S1[i] = tolower(S1[i]);
+
+            }
+
+            isFirstLetter = (S1[i] == ' ' ? true : false);
+
+        }
+
+        return S1;
+    }
+
+    void  LowerFirstLetterOfEachWord()
+    {
+
+
+        // no need to return value , this function will directly update the object value  
+        _Value = LowerFirstLetterOfEachWord(_Value);
+    }
+
+    static string  UpperAllString(string S1)
+    {
+        for (short i = 0; i < S1.length(); i++)
+        {
+            S1[i] = toupper(S1[i]);
+        }
+        return S1;
+    }
+
+    void  UpperAllString()
+    {
+        _Value = UpperAllString(_Value);
+    }
+
+    static string  LowerAllString(string S1)
+    {
+        for (short i = 0; i < S1.length(); i++)
+        {
+            S1[i] = tolower(S1[i]);
+        }
+        return S1;
+    }
+
+    void  LowerAllString()
+    {
+        _Value = LowerAllString(_Value);
+    }
+
+    static char  InvertLetterCase(char char1)
+    {
+        return isupper(char1) ? tolower(char1) : toupper(char1);
+    }
+
+    static string  InvertAllLettersCase(string S1)
+    {
+        for (short i = 0; i < S1.length(); i++)
+        {
+            S1[i] = InvertLetterCase(S1[i]);
+        }
+        return S1;
+    }
+
+    void  InvertAllLettersCase()
+    {
+        _Value = InvertAllLettersCase(_Value);
+    }
+
+    enum enWhatToCount { SmallLetters = 0, CapitalLetters = 1, All = 3 };
+
+    static short CountLetters(string S1, enWhatToCount WhatToCount = enWhatToCount::All)
+    {
+
+
+        if (WhatToCount == enWhatToCount::All)
+        {
+            return S1.length();
+        }
+
+        short Counter = 0;
+
+        for (short i = 0; i < S1.length(); i++)
+        {
+
+            if (WhatToCount == enWhatToCount::CapitalLetters && isupper(S1[i]))
+                Counter++;
+
+
+            if (WhatToCount == enWhatToCount::SmallLetters && islower(S1[i]))
+                Counter++;
+
+
+        }
+
+        return Counter;
+
+    }
+
+    static short  CountCapitalLetters(string S1)
+    {
+
+        short Counter = 0;
+
+        for (short i = 0; i < S1.length(); i++)
+        {
+
+            if (isupper(S1[i]))
+                Counter++;
+
+        }
+
+        return Counter;
+    }
+
+    short  CountCapitalLetters()
+    {
+        return CountCapitalLetters(_Value);
+    }
+
+    static short  CountSmallLetters(string S1)
+    {
+
+        short Counter = 0;
+
+        for (short i = 0; i < S1.length(); i++)
+        {
+
+            if (islower(S1[i]))
+                Counter++;
+
+        }
+
+        return Counter;
+    }
+
+    short  CountSmallLetters()
+    {
+        return CountSmallLetters(_Value);
+    }
+
+    static short  CountSpecificLetter(string S1, char Letter, bool MatchCase = true)
+    {
+
+        short Counter = 0;
+
+        for (short i = 0; i < S1.length(); i++)
+        {
+
+            if (MatchCase)
+            {
+                if (S1[i] == Letter)
+                    Counter++;
+            }
+            else
+            {
+                if (tolower(S1[i]) == tolower(Letter))
+                    Counter++;
+            }
+
+        }
+
+        return Counter;
+    }
+
+    short  CountSpecificLetter(char Letter, bool MatchCase = true)
+    {
+        return CountSpecificLetter(_Value, Letter, MatchCase);
+    }
+
+    static bool IsVowel(char Ch1)
+    {
+        Ch1 = tolower(Ch1);
+
+        return ((Ch1 == 'a') || (Ch1 == 'e') || (Ch1 == 'i') || (Ch1 == 'o') || (Ch1 == 'u'));
+
+    }
+
+    static short  CountVowels(string S1)
+    {
+
+        short Counter = 0;
+
+        for (short i = 0; i < S1.length(); i++)
+        {
+
+            if (IsVowel(S1[i]))
+                Counter++;
+
+        }
+
+        return Counter;
+    }
+
+    short  CountVowels()
+    {
+        return CountVowels(_Value);
+    }
+
+    static vector<string> Split(string S1, string Delim)
+    {
+
+        vector<string> vString;
+
+        short pos = 0;
+        string sWord; // define a string variable  
+
+        // use find() function to get the position of the delimiters  
+        while ((pos = S1.find(Delim)) != std::string::npos)
+        {
+            sWord = S1.substr(0, pos); // store the word   
+           // if (sWord != "")
+           // {
+                vString.push_back(sWord);
+            //}
+
+            S1.erase(0, pos + Delim.length());  /* erase() until positon and move to next word. */
+        }
+
+        if (S1 != "")
+        {
+            vString.push_back(S1); // it adds last word of the string.
+        }
+
+        return vString;
+
+    }
+
+    vector<string> Split(string Delim)
+    {
+        return Split(_Value, Delim);
+    }
+
+    static string TrimLeft(string S1)
+    {
+
+
+        for (short i = 0; i < S1.length(); i++)
+        {
+            if (S1[i] != ' ')
+            {
+                return S1.substr(i, S1.length() - i);
+            }
+        }
+        return "";
+    }
+
+    void TrimLeft()
+    {
+        _Value = TrimLeft(_Value);
+    }
+
+    static string TrimRight(string S1)
+    {
+
+
+        for (short i = S1.length() - 1; i >= 0; i--)
+        {
+            if (S1[i] != ' ')
+            {
+                return S1.substr(0, i + 1);
+            }
+        }
+        return "";
+    }
+
+    void TrimRight()
+    {
+        _Value = TrimRight(_Value);
+    }
+
+    static string Trim(string S1)
+    {
+        return (TrimLeft(TrimRight(S1)));
+
+    }
+
+    void Trim()
+    {
+        _Value = Trim(_Value);
+    }
+
+    static string JoinString(vector<string> vString, string Delim)
+    {
+
+        string S1 = "";
+
+        for (string& s : vString)
+        {
+            S1 = S1 + s + Delim;
+        }
+
+        return S1.substr(0, S1.length() - Delim.length());
+
+
+    }
+
+    static string JoinString(string arrString[], short Length, string Delim)
+    {
+
+        string S1 = "";
+
+        for (short i = 0; i < Length; i++)
+        {
+            S1 = S1 + arrString[i] + Delim;
+        }
+
+        return S1.substr(0, S1.length() - Delim.length());
+
+    }
+
+    static string ReverseWordsInString(string S1)
+    {
+
+        vector<string> vString;
+        string S2 = "";
+
+        vString = Split(S1, " ");
+
+        // declare iterator
+        vector<string>::iterator iter = vString.end();
+
+        while (iter != vString.begin())
+        {
+
+            --iter;
+
+            S2 += *iter + " ";
+
+        }
+
+        S2 = S2.substr(0, S2.length() - 1); //remove last space.
+
+        return S2;
+    }
+
+    void ReverseWordsInString()
+    {
+        _Value = ReverseWordsInString(_Value);
+    }
+
+    static string ReplaceWord(string S1, string StringToReplace, string sRepalceTo, bool MatchCase = true)
+    {
+
+        vector<string> vString = Split(S1, " ");
+
+        for (string& s : vString)
+        {
+
+            if (MatchCase)
+            {
+                if (s == StringToReplace)
+                {
+                    s = sRepalceTo;
+                }
+
+            }
+            else
+            {
+                if (LowerAllString(s) == LowerAllString(StringToReplace))
+                {
+                    s = sRepalceTo;
+                }
+
+            }
+
+        }
+
+        return JoinString(vString, " ");
+    }
+
+    string ReplaceWord(string StringToReplace, string sRepalceTo)
+    {
+        return ReplaceWord(_Value, StringToReplace, sRepalceTo);
+    }
+
+    static string RemovePunctuations(string S1)
+    {
+
+        string S2 = "";
+
+        for (short i = 0; i < S1.length(); i++)
+        {
+            if (!ispunct(S1[i]))
+            {
+                S2 += S1[i];
+            }
+        }
+
+        return S2;
+
+    }
+
+    void RemovePunctuations()
+    {
+        _Value = RemovePunctuations(_Value);
+    }
+
+
+};
